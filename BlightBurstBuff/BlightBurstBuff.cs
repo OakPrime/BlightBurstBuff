@@ -6,7 +6,6 @@ using System;
 using R2API;
 using System.Collections.Generic;
 using UnityEngine;
-using IL.RoR2.Achievements;
 
 namespace BlightBurstBuff
 {
@@ -26,7 +25,7 @@ namespace BlightBurstBuff
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "OakPrime";
         public const string PluginName = "BlightBurstBuff";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "1.0.1";
 
         private readonly Dictionary<string, string> DefaultLanguage = new Dictionary<string, string>();
 
