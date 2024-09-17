@@ -35,7 +35,6 @@ namespace BlightBurstBuff
             try
             {
                 Log.Init(Logger);
-
                 IL.RoR2.GlobalEventManager.ProcessHitEnemy += (il) =>
                 {
                     ILCursor c = new ILCursor(il);
@@ -84,7 +83,7 @@ namespace BlightBurstBuff
                             {
                                 damage = remainingDamage,
                                 damageColorIndex = DamageColorIndex.Poison,
-                                damageType = DamageType.Generic,
+                                damageType = (DamageTypeCombo) DamageType.Generic,
                                 attacker = damageInfo.attacker,
                                 crit = damageInfo.crit, // consider making unable to crit
                                 force = Vector3.zero,
