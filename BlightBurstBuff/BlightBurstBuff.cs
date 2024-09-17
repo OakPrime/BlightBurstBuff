@@ -25,7 +25,7 @@ namespace BlightBurstBuff
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "OakPrime";
         public const string PluginName = "BlightBurstBuff";
-        public const string PluginVersion = "1.0.1";
+        public const string PluginVersion = "1.0.2";
 
         private readonly Dictionary<string, string> DefaultLanguage = new Dictionary<string, string>();
 
@@ -36,7 +36,7 @@ namespace BlightBurstBuff
             {
                 Log.Init(Logger);
 
-                IL.RoR2.GlobalEventManager.OnHitEnemy += (il) =>
+                IL.RoR2.GlobalEventManager.ProcessHitEnemy += (il) =>
                 {
                     ILCursor c = new ILCursor(il);
                     c.TryGotoNext(
