@@ -25,7 +25,7 @@ namespace BlightBurstBuff
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "OakPrime";
         public const string PluginName = "BlightBurstBuff";
-        public const string PluginVersion = "1.0.2";
+        public const string PluginVersion = "1.0.3";
 
         private readonly Dictionary<string, string> DefaultLanguage = new Dictionary<string, string>();
 
@@ -45,7 +45,7 @@ namespace BlightBurstBuff
                     );
                     c.Index += 8;
                     c.Emit(OpCodes.Ldarg_1);
-                    c.Emit(OpCodes.Ldloc_2);
+                    c.Emit(OpCodes.Ldloc_1); // this will not age well. Currently points to victimBody, but not guaranteed in future
                     c.EmitDelegate<Action<RoR2.DamageInfo, RoR2.CharacterBody>>((damageInfo, victim) =>
                     {
                         int buffCount = victim.GetBuffCount(RoR2.RoR2Content.Buffs.Blight);
@@ -67,7 +67,10 @@ namespace BlightBurstBuff
                                     {
                                         DotController.DotStack dotStack = dotController.dotStackList[i];
                                         remainingDamage += dotStack.damage / dotStack.dotDef.interval * dotStack.timer;
+                                        
                                         //Log.LogDebug("dot stack timer: " + dotController.dotStackList[i].timer);
+                                        //Log.LogDebug("Damage: " + dotStack.damage);
+                                        //Log.LogDebug("Damage added: " + dotStack.damage / dotStack.dotDef.interval * dotStack.timer);
                                         //Log.LogDebug("damage coeff added: " + dotController.dotStackList[i].timer * 60.0f);
                                         dotController.RemoveDotStackAtServer(i);
                                         //debugDotCount++;
@@ -92,9 +95,15 @@ namespace BlightBurstBuff
                                 procChainMask = damageInfo.procChainMask,
                                 procCoefficient = 1f
                             };
-                            // EffectManager.SimpleImpactEfect here
                             GlobalEventManager.instance.OnHitEnemy(newDamageInfo, victim.gameObject);
                             victim.healthComponent.TakeDamage(newDamageInfo);
+                            // this needs to change. It is weak, small, and misleading on range, but I need an indicator
+                            EffectManager.SpawnEffect(GlobalEventManager.CommonAssets.igniteOnKillExplosionEffectPrefab, new EffectData()
+                            {
+                                origin = victim.corePosition,
+                                scale = 12 + victim.radius,
+                                rotation = new Quaternion(0.0f, 0.0f, 0.0f, 1f)
+                            }, true);
 
                         }
                     });
