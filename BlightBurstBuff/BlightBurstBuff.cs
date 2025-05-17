@@ -25,7 +25,7 @@ namespace BlightBurstBuff
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "OakPrime";
         public const string PluginName = "BlightBurstBuff";
-        public const string PluginVersion = "1.0.3";
+        public const string PluginVersion = "1.1.0";
 
         private readonly Dictionary<string, string> DefaultLanguage = new Dictionary<string, string>();
 
@@ -35,6 +35,7 @@ namespace BlightBurstBuff
             try
             {
                 Log.Init(Logger);
+                AcridConfig.InitializeConfig();
                 IL.RoR2.GlobalEventManager.ProcessHitEnemy += (il) =>
                 {
                     ILCursor c = new ILCursor(il);
@@ -50,7 +51,7 @@ namespace BlightBurstBuff
                     {
                         int buffCount = victim.GetBuffCount(RoR2.RoR2Content.Buffs.Blight);
                         //Log.LogDebug("buffCount onhit: " + buffCount);
-                        if (buffCount > 2)
+                        if (buffCount >= AcridConfig.targetBuffCount.Value)
                         {
                             //Log.LogDebug("buffCount post clear: " + victim.GetBuffCount(RoR2.RoR2Content.Buffs.Blight));
                             var attackerDamage = damageInfo.attacker.GetComponent<CharacterBody>().damage * 0.6f;
@@ -86,14 +87,14 @@ namespace BlightBurstBuff
                             {
                                 damage = remainingDamage,
                                 damageColorIndex = DamageColorIndex.Poison,
-                                damageType = (DamageTypeCombo) DamageType.Generic,
+                                damageType = (DamageTypeCombo)DamageType.Generic,
                                 attacker = damageInfo.attacker,
-                                crit = damageInfo.crit, // consider making unable to crit
+                                crit = AcridConfig.canCrit.Value ? damageInfo.crit : false,
                                 force = Vector3.zero,
                                 inflictor = (GameObject)null,
                                 position = damageInfo.position,
                                 procChainMask = damageInfo.procChainMask,
-                                procCoefficient = 1f
+                                procCoefficient = AcridConfig.procCoeff.Value
                             };
                             GlobalEventManager.instance.OnHitEnemy(newDamageInfo, victim.gameObject);
                             victim.healthComponent.TakeDamage(newDamageInfo);
