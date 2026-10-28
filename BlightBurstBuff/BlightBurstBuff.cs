@@ -25,7 +25,7 @@ namespace BlightBurstBuff
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "OakPrime";
         public const string PluginName = "BlightBurstBuff";
-        public const string PluginVersion = "1.1.0";
+        public const string PluginVersion = "1.1.1";
 
         private readonly Dictionary<string, string> DefaultLanguage = new Dictionary<string, string>();
 
@@ -39,14 +39,24 @@ namespace BlightBurstBuff
                 IL.RoR2.GlobalEventManager.ProcessHitEnemy += (il) =>
                 {
                     ILCursor c = new ILCursor(il);
-                    c.TryGotoNext(
-                        x => x.MatchLdcI4(5),
-                        x => x.MatchLdcR4(out _),
-                        x => x.MatchLdarg(out _)
-                    );
-                    c.Index += 8;
+                    if (!c.TryGotoNext(
+                        x => x.MatchLdcI4(1048576) // value of Blight damage type enum
+                    ))
+                    {
+                        Log.LogInstrNotFound(il);
+                        return;
+                    }
+                    if (!c.TryGotoNext(
+                        x => x.MatchLdloc(out _),
+                        x => x.MatchCallOrCallvirt(out _)
+                    ))
+                    {
+                        Log.LogInstrNotFound(il);
+                        return;
+                    }
+                    c.Index += 2;
                     c.Emit(OpCodes.Ldarg_1);
-                    c.Emit(OpCodes.Ldloc_1); // this will not age well. Currently points to victimBody, but not guaranteed in future
+                    c.Emit(OpCodes.Ldloc_0); // this will not age well. Currently points to victimBody, but not guaranteed in future
                     c.EmitDelegate<Action<RoR2.DamageInfo, RoR2.CharacterBody>>((damageInfo, victim) =>
                     {
                         int buffCount = victim.GetBuffCount(RoR2.RoR2Content.Buffs.Blight);
@@ -54,7 +64,7 @@ namespace BlightBurstBuff
                         if (buffCount >= AcridConfig.targetBuffCount.Value)
                         {
                             //Log.LogDebug("buffCount post clear: " + victim.GetBuffCount(RoR2.RoR2Content.Buffs.Blight));
-                            var attackerDamage = damageInfo.attacker.GetComponent<CharacterBody>().damage * 0.6f;
+                            //var attackerDamage = damageInfo.attacker.GetComponent<CharacterBody>().damage * 0.6f;
 
                             DotController dotController = DotController.FindDotController(victim.gameObject);
                             float remainingDamage = 0.0f;
@@ -105,6 +115,7 @@ namespace BlightBurstBuff
                                 scale = 12 + victim.radius,
                                 rotation = new Quaternion(0.0f, 0.0f, 0.0f, 1f)
                             }, true);
+                            Util.PlaySound("Play_acrid_shift_land", victim.gameObject);
 
                         }
                     });
